@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+    <meta name="description" content="Fair and transparent group expense management">
+    <title>Fairshare – Welfare, Fair & Square</title>
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRmFpcnNoYXJlIC0gV2VsZmFyZSwgRmFpciAmIFNxdWFyZSIsInNob3J0X25hbWUiOiJGYWlyc2hhcmUiLCJzdGFydF91cmwiOiIvIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2ZmZmZmZiIsInRoZW1lX2NvbG9yIjoiIzRGNDZFNSIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSFpwWlhkQ2IzZzlJakFnTUNBeE9USWdNVGt5SWo0OGNtVmpkQ0IzYVdSMGFEMGlNVGt5SWlCb1pXbG5hSFE5SWpFNU1pSWdabWxzYkQwaUl6UkdORFpGTlNJdlBqeDBaWGgwSUhnOUlqazJJaUI1UFNJeE1EQWlJR1pwYkd3OUluZG9hWFJsSWlCbWIyNTBMV1poYldsc2VUMGlRWEpwWVd3aUlHWnZiblF0YzJsNlpUMGlORGdpSUhSbGVIUXRZVzVqYUc5eVBTSnRhV1JrYkdVaVBrWlRQQzkwWlhoMFBqd3ZjM1puUGc9PSIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            min-height: 80vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4F46E5;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4F46E5;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #E5E7EB;
+            color: #333;
+        }
+
+        .btn-danger {
+            background: #EF4444;
+        }
+
+        .link {
+            color: #4F46E5;
+            text-align: center;
+            display: block;
+            margin-top: 15px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .error {
+            background: #FEE2E2;
+            color: #DC2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success {
+            background: #D1FAE5;
+            color: #059669;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .group-card, .expense-card {
+            background: #F9FAFB;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .group-card:hover, .expense-card:hover {
+            transform: translateX(5px);
+        }
+
+        .group-card h3, .expense-card h3 {
+            color: #4F46E5;
+            margin-bottom: 8px;
+        }
+
+        .balance {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .balance.positive {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .balance.negative {
+            color: #DC2626;
+            font-weight: 600;
+        }
+
+        .member-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #F9FAFB;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .member-checkbox input {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .settlement-item {
+            background: #F0FDF4;
+            border-left: 4px solid #10B981;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nav-buttons button {
+            flex: 1;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Fairshare</h1>
+            <p>Welfare, Fair & Square</p>
+        </div>
+
+        <div class="content">
+            <!-- Login Screen -->
+            <div id="loginScreen" class="screen active">
+                <h2 style="margin-bottom: 20px; color: #4F46E5;">Welcome Back</h2>
+                <div class="error" id="loginError"></div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="password">
+                </div>
+                <button class="btn" onclick="login()">Login</button>
+                <a class="link" onclick="showScreen('signupScreen')">Don't have an account? Sign up</a>
+            </div>
+
+            <!-- Signup Screen -->
+            <div id="signupScreen" class="screen">
+                <h2 style="margin-bottom: 20px; color: #4F46E5;">Create Account</h2>
+                <div class="error" id="signupError"></div>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="signupName" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" placeholder="email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" placeholder="password">
+                </div>
+                <button class="btn" onclick="signup()">Sign Up</button>
+                <a class="link" onclick="showScreen('loginScreen')">Already have an account? Login</a>
+            </div>
+
+            <!-- Dashboard Screen -->
+            <div id="dashboardScreen" class="screen">
+                <div class="nav-buttons">
+                    <button class="btn" onclick="showScreen('createGroupScreen')">+ New Group</button>
+                    <button class="btn btn-secondary" onclick="logout()">Logout</button>
+                </div>
+                <h2 style="margin-bottom: 20px; color: #4F46E5;">Your Groups</h2>
+                <div id="groupsList" class="loading">Loading groups...</div>
+            </div>
+
+            <!-- Create Group Screen -->
+            <div id="createGroupScreen" class="screen">
+                <button class="btn btn-secondary" onclick="showScreen('dashboardScreen')" style="margin-bottom: 20px;">← Back</button>
+                <h2 style="margin-bottom: 20px; color: #4F46E5;">Create New Group</h2>
+                <div class="error" id="groupError"></div>
+                <div class="success" id="groupSuccess"></div>
+                <div class="form-group">
+                    <label>Group Name</label>
+                    <input type="text" id="groupName" placeholder="e.g., Weekend Trip">
+                </div>
+                <div class="form-group">
+                    <label>Members (comma separated emails)</label>
+                    <textarea id="groupMembers" rows="3" placeholder="friend1@email.com, friend2@email.com"></textarea>
+                </div>
+                <button class="btn" onclick="createGroup()">Create Group</button>
+            </div>
+
+            <!-- Group Detail Screen -->
+            <div id="groupDetailScreen" class="screen">
+                <button class="btn btn-secondary" onclick="showScreen('dashboardScreen')" style="margin-bottom: 20px;">← Back</button>
+                <h2 id="groupTitle" style="margin-bottom: 10px; color: #4F46E5;"></h2>
+                <div id="groupMembers" style="margin-bottom: 20px; color: #6B7280;"></div>
+                
+                <button class="btn" onclick="showScreen('addExpenseScreen')">+ Add Expense</button>
+                
+                <h3 style="margin: 20px 0 10px 0; color: #4F46E5;">Settlement Summary</h3>
+                <div id="settlementSummary"></div>
+                
+                <h3 style="margin: 20px 0 10px 0; color: #4F46E5;">Expenses</h3>
+                <div id="expensesList" class="loading">Loading expenses...</div>
+            </div>
+
+            <!-- Add Expense Screen -->
+            <div id="addExpenseScreen" class="screen">
+                <button class="btn btn-secondary" onclick="showScreen('groupDetailScreen')" style="margin-bottom: 20px;">← Back</button>
+                <h2 style="margin-bottom: 20px; color: #4F46E5;">Add Expense</h2>
+                <div class="error" id="expenseError"></div>
+                <div class="success" id="expenseSuccess"></div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="expenseDescription" placeholder="e.g., Dinner at restaurant">
+                </div>
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="number" id="expenseAmount" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Paid By</label>
+                    <select id="expensePayer"></select>
+                </div>
+                <div class="form-group">
+                    <label>Split Among (select participants)</label>
+                    <div id="participantsList"></div>
+                </div>
+                <button class="btn" onclick="addExpense()">Add Expense</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, doc, setDoc, getDoc, getDocs, query, where, onSnapshot, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Initialize Firebase with your config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaDzc0Hn6rDsH4meXhblOb7eNPfkRLkU8",
+            authDomain: "fairshare-pwa.firebaseapp.com",
+            projectId: "fairshare-pwa",
+            storageBucket: "fairshare-pwa.firebasestorage.app",
+            messagingSenderId: "468726458796",
+            appId: "1:468726458796:web:c7f5d1e2ec1f6a6408f209"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.auth = auth;
+        window.db = db;
+        window.currentUser = null;
+        window.currentGroup = null;
+
+        // Auth state observer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.currentUser = user;
+                showScreen('dashboardScreen');
+                loadGroups();
+            } else {
+                window.currentUser = null;
+                showScreen('loginScreen');
+            }
+        });
+
+        // Make functions global
+        window.showScreen = function(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        };
+
+        window.showError = function(elementId, message) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        };
+
+        window.showSuccess = function(elementId, message) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
+        };
+
+        window.signup = async function() {
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+
+            if (!name || !email || !password) {
+                showError('signupError', 'Please fill in all fields');
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, 'users', userCredential.user.uid), {
+                    name: name,
+                    email: email,
+                    createdAt: Timestamp.now()
+                });
+            } catch (error) {
+                showError('signupError', error.message);
+            }
+        };
+
+        window.login = async function() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showError('loginError', 'Please fill in all fields');
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                showError('loginError', 'Invalid email or password');
+            }
+        };
+
+        window.logout = async function() {
+            await signOut(auth);
+        };
+
+        window.loadGroups = async function() {
+            const groupsList = document.getElementById('groupsList');
+            groupsList.innerHTML = '<div class="loading">Loading groups...</div>';
+
+            try {
+                const q = query(collection(db, 'groups'), where('memberIds', 'array-contains', currentUser.uid));
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                    groupsList.innerHTML = '<p style="text-align: center; color: #6B7280;">No groups yet. Create one to get started!</p>';
+                    return;
+                }
+
+                groupsList.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const group = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'group-card';
+                    card.onclick = () => openGroup(doc.id, group);
+                    card.innerHTML = `
+                        <h3>${group.name}</h3>
+                        <p style="color: #6B7280; font-size: 14px;">${group.members.length} members</p>
+                    `;
+                    groupsList.appendChild(card);
+                });
+            } catch (error) {
+                groupsList.innerHTML = '<p style="text-align: center; color: #DC2626;">Error loading groups</p>';
+            }
+        };
+
+        window.createGroup = async function() {
+            const name = document.getElementById('groupName').value.trim();
+            const membersInput = document.getElementById('groupMembers').value.trim();
+
+            if (!name) {
+                showError('groupError', 'Please enter a group name');
+                return;
+            }
+
+            const memberEmails = membersInput.split(',').map(e => e.trim()).filter(e => e);
+            
+            // Get current user info
+            const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+            const currentUserData = userDoc.data();
+
+            const members = [{
+                email: currentUser.email,
+                id: currentUser.uid,
+                name: currentUserData.name
+            }];
+
+            const memberIds = [currentUser.uid];
+
+            try {
+                await addDoc(collection(db, 'groups'), {
+                    name: name,
+                    members: members,
+                    memberEmails: [currentUser.email, ...memberEmails],
+                    memberIds: memberIds,
+                    createdBy: currentUser.uid,
+                    createdAt: Timestamp.now()
+                });
+
+                showSuccess('groupSuccess', 'Group created successfully!');
+                document.getElementById('groupName').value = '';
+                document.getElementById('groupMembers').value = '';
+                setTimeout(() => showScreen('dashboardScreen'), 1500);
+            } catch (error) {
+                showError('groupError', 'Error creating group: ' + error.message);
+            }
+        };
+
+        window.openGroup = function(groupId, groupData) {
+            window.currentGroup = { id: groupId, ...groupData };
+            document.getElementById('groupTitle').textContent = groupData.name;
+            document.getElementById('groupMembers').textContent = `Members: ${groupData.memberEmails.join(', ')}`;
+            
+            showScreen('groupDetailScreen');
+            loadExpenses(groupId);
+            calculateSettlement(groupId);
+        };
+
+        window.loadExpenses = async function(groupId) {
+            const expensesList = document.getElementById('expensesList');
+            expensesList.innerHTML = '<div class="loading">Loading expenses...</div>';
+
+            try {
+                const q = query(collection(db, 'expenses'), where('groupId', '==', groupId));
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                    expensesList.innerHTML = '<p style="text-align: center; color: #6B7280;">No expenses yet</p>';
+                    return;
+                }
+
+                expensesList.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const expense = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'expense-card';
+                    card.innerHTML = `
+                        <h3>${expense.description}</h3>
+                        <p style="color: #6B7280; font-size: 14px;">Amount: $${expense.amount.toFixed(2)}</p>
+                        <p style="color: #6B7280; font-size: 14px;">Paid by: ${expense.payerEmail}</p>
+                        <p style="color: #6B7280; font-size: 14px;">Split among ${expense.participants.length} members</p>
+                    `;
+                    expensesList.appendChild(card);
+                });
+            } catch (error) {
+                expensesList.innerHTML = '<p style="text-align: center; color: #DC2626;">Error loading expenses</p>';
+            }
+        };
+
+        window.calculateSettlement = async function(groupId) {
+            const settlementDiv = document.getElementById('settlementSummary');
+            settlementDiv.innerHTML = '<div class="loading">Calculating...</div>';
+
+            try {
+                const q = query(collection(db, 'expenses'), where('groupId', '==', groupId));
+                const snapshot = await getDocs(q);
+
+                const balances = {};
+                
+                // Initialize balances for all members
+                currentGroup.memberEmails.forEach(email => {
+                    balances[email] = 0;
+                });
+
+                // Calculate balances
+                snapshot.forEach(doc => {
+                    const expense = doc.data();
+                    const share = expense.amount / expense.participants.length;
+                    
+                    balances[expense.payerEmail] += expense.amount;
+                    
+                    expense.participants.forEach(participant => {
+                        balances[participant] -= share;
+                    });
+                });
+
+                // Generate settlement instructions
+                const settlements = [];
+                const creditors = Object.entries(balances).filter(([_, bal]) => bal > 0.01).sort((a, b) => b[1] - a[1]);
+                const debtors = Object.entries(balances).filter(([_, bal]) => bal < -0.01).sort((a, b) => a[1] - b[1]);
+
+                let i = 0, j = 0;
+                while (i < creditors.length && j < debtors.length) {
+                    const [creditor, creditAmount] = creditors[i];
+                    const [debtor, debtAmount] = debtors[j];
+                    const amount = Math.min(creditAmount, -debtAmount);
+
+                    settlements.push({
+                        from: debtor,
+                        to: creditor,
+                        amount: amount
+                    });
+
+                    creditors[i][1] -= amount;
+                    debtors[j][1] += amount;
+
+                    if (creditors[i][1] < 0.01) i++;
+                    if (debtors[j][1] > -0.01) j++;
+                }
+
+                if (settlements.length === 0) {
+                    settlementDiv.innerHTML = '<p style="text-align: center; color: #10B981; font-weight: 600;">✓ All settled up!</p>';
+                } else {
+                    settlementDiv.innerHTML = '';
+                    settlements.forEach(s => {
+                        const item = document.createElement('div');
+                        item.className = 'settlement-item';
+                        item.innerHTML = `<strong>${s.from}</strong> owes <strong>${s.to}</strong> → <strong>$${s.amount.toFixed(2)}</strong>`;
+                        settlementDiv.appendChild(item);
+                    });
+                }
+            } catch (error) {
+                settlementDiv.innerHTML = '<p style="text-align: center; color: #DC2626;">Error calculating settlement</p>';
+            }
+        };
+
+        window.showAddExpenseScreen = function() {
+            const payerSelect = document.getElementById('expensePayer');
+            const participantsList = document.getElementById('participantsList');
+            
+            payerSelect.innerHTML = '';
+            participantsList.innerHTML = '';
+            
+            currentGroup.memberEmails.forEach(email => {
+                const option = document.createElement('option');
+                option.value = email;
+                option.textContent = email;
+                payerSelect.appendChild(option);
+                
+                const checkbox = document.createElement('div');
+                checkbox.className = 'member-checkbox';
+                checkbox.innerHTML = `
+                    <input type="checkbox" id="participant-${email}" value="${email}" checked>
+                    <label for="participant-${email}">${email}</label>
+                `;
+                participantsList.appendChild(checkbox);
+            });
+            
+            showScreen('addExpenseScreen');
+        };
+
+        window.addExpense = async function() {
+            const description = document.getElementById('expenseDescription').value.trim();
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const payer = document.getElementById('expensePayer').value;
+            
+            const participants = [];
+            currentGroup.memberEmails.forEach(email => {
+                const checkbox = document.getElementById(`participant-${email}`);
+                if (checkbox && checkbox.checked) {
+                    participants.push(email);
+                }
+            });
+
+            if (!description || !amount || amount <= 0 || participants.length === 0) {
+                showError('expenseError', 'Please fill in all fields and select at least one participant');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, 'expenses'), {
+                    groupId: currentGroup.id,
+                    description: description,
+                    amount: amount,
+                    payerEmail: payer,
+                    participants: participants,
+                    createdAt: Timestamp.now()
+                });
+
+                showSuccess('expenseSuccess', 'Expense added successfully!');
+                document.getElementById('expenseDescription').value = '';
+                document.getElementById('expenseAmount').value = '';
+                
+                setTimeout(() => {
+                    showScreen('groupDetailScreen');
+                    loadExpenses(currentGroup.id);
+                    calculateSettlement(currentGroup.id);
+                }, 1500);
+            } catch (error) {
+                showError('expenseError', 'Error adding expense: ' + error.message);
+            }
+        };
+
+        // Connect the button in group detail screen
+        document.querySelector('#groupDetailScreen .btn').onclick = showAddExpenseScreen;
+    </script>
+</body>
+</html>
