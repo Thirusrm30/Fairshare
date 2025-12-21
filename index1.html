@@ -255,6 +255,10 @@
         .stat-card.negative p {
             color: #EF4444;
         }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
 
         .action-buttons {
             display: grid;
@@ -847,7 +851,7 @@
 
             <!-- Add Expense Screen -->
             <div id="addExpenseScreen" class="screen">
-                <button class="btn back-btn" onclick="showScreen('groupDetailScreen')">← Back</button>
+                <button class="btn back-btn" onclick="showScreen('dashboardScreen')">← Back to Home</button>
                 <h2 style="margin-bottom: 20px; color: #1F2937; font-size: 24px;">Add Expense</h2>
                 <div class="error" id="expenseError"></div>
                 <div class="success" id="expenseSuccess"></div>
@@ -873,6 +877,7 @@
             <!-- Activity Screen -->
             <div id="activityScreen" class="screen">
                 <div class="content-with-nav">
+                    <button class="btn back-btn" onclick="showScreen('dashboardScreen')">← Back to Home</button>
                     <h2 style="margin-bottom: 20px; color: #1F2937; font-size: 24px;">Recent Activity</h2>
                     <div class="empty-state">
                         <div class="empty-state-icon">📊</div>
