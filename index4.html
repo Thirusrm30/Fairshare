@@ -1,0 +1,2489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366F1">
+    <meta name="description" content="Fair and transparent group expense management">
+    <title>Fairshare – Split Expenses Fairly</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1F2937;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: #F9FAFB;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Header Styles */
+        .app-header {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            border: 2px solid rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+
+        .profile-avatar:hover {
+            background: rgba(255,255,255,0.35);
+            transform: scale(1.05);
+        }
+
+        .header-title h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header-title p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .notification-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .notification-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: absolute;
+            top: 65px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 16px;
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .profile-dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #E5E7EB;
+            margin-bottom: 12px;
+        }
+
+        .profile-dropdown-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            overflow: hidden;
+        }
+
+        .profile-dropdown-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 2px;
+        }
+
+        .profile-dropdown-info p {
+            font-size: 12px;
+            color: #6B7280;
+        }
+
+        .profile-dropdown-item {
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .profile-dropdown-item:hover {
+            background: #F3F4F6;
+        }
+
+        /* Screen Management */
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Content Area */
+        .content {
+            padding: 20px;
+            min-height: calc(100vh - 72px);
+        }
+
+        /* Auth Screens */
+        .auth-container {
+            padding: 40px 20px;
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .auth-logo-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .auth-logo h2 {
+            color: #6366F1;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .auth-logo p {
+            color: #6B7280;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #6366F1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(99,102,241,0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #6366F1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #6366F1;
+            color: #6366F1;
+            box-shadow: none;
+        }
+
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 6px 16px rgba(239,68,68,0.4);
+        }
+
+        .link {
+            color: #6366F1;
+            text-align: center;
+            display: block;
+            margin-top: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        /* Dashboard */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .stat-card h3 {
+            font-size: 12px;
+            color: #6B7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+
+        .stat-card.positive p {
+            color: #10B981;
+        }
+
+        .stat-card.negative p {
+            color: #EF4444;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .action-btn {
+            background: white;
+            padding: 24px 16px;
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
+
+        .action-btn-icon {
+            font-size: 32px;
+        }
+
+        .action-btn-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+
+        .section-header button {
+            background: none;
+            border: none;
+            color: #6366F1;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Group Card */
+        .group-card {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .group-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .group-card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .group-card-content {
+            flex: 1;
+            cursor: pointer;
+            min-width: 0;
+        }
+
+        .group-card h3 {
+            color: #1F2937;
+            margin-bottom: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .group-card p {
+            color: #6B7280;
+            font-size: 13px;
+        }
+
+        .group-card-balance {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .group-card-balance.positive {
+            color: #10B981;
+        }
+
+        .group-card-balance.negative {
+            color: #EF4444;
+        }
+
+        .group-card-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .delete-view-btn {
+            background: #FEE2E2;
+            border: none;
+            color: #DC2626;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .delete-view-btn:hover {
+            background: #FCA5A5;
+            transform: scale(1.1);
+        }
+
+        .delete-view-btn:active {
+            transform: scale(0.95);
+        }
+
+        .group-card-arrow {
+            font-size: 20px;
+            color: #9CA3AF;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .group-card-content:hover ~ .group-card-actions .group-card-arrow {
+            color: #6366F1;
+            transform: translateX(4px);
+        }
+
+        /* Delete All Button */
+        .delete-all-btn {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+            transition: all 0.3s;
+        }
+
+        .delete-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(239,68,68,0.4);
+        }
+
+        /* Expense Card */
+        .expense-card {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .expense-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+
+        .expense-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .expense-header h3 {
+            color: #1F2937;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .expense-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: #6366F1;
+        }
+
+        .expense-details {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .expense-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #6B7280;
+        }
+
+        .expense-detail-icon {
+            font-size: 14px;
+        }
+
+        /* Expense Detail Panel */
+        .expense-detail-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 12px rgba(0,0,0,0.15);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .expense-detail-panel.show {
+            right: 0;
+        }
+
+        .expense-detail-header {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .expense-detail-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .expense-detail-content {
+            padding: 20px;
+        }
+
+        .expense-detail-section {
+            margin-bottom: 24px;
+        }
+
+        .expense-detail-section h3 {
+            font-size: 14px;
+            color: #6B7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .expense-detail-section p {
+            font-size: 16px;
+            color: #1F2937;
+            font-weight: 500;
+        }
+
+        .expense-split-item {
+            background: #F9FAFB;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Settlement */
+        .settlement-item {
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+            border-left: 4px solid #10B981;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .settlement-item strong {
+            color: #1F2937;
+            font-weight: 600;
+        }
+
+        .settlement-amount {
+            color: #10B981;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* Member Checkbox */
+        .member-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            background: white;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .member-checkbox:hover {
+            border-color: #6366F1;
+            background: #F5F3FF;
+        }
+
+        .member-checkbox input {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .member-checkbox label {
+            margin: 0;
+            cursor: pointer;
+            color: #1F2937;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        /* Messages */
+        .error {
+            background: #FEE2E2;
+            color: #DC2626;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .success {
+            background: #D1FAE5;
+            color: #059669;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6B7280;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            color: #1F2937;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .empty-state p {
+            color: #6B7280;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        /* Search */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            padding-left: 44px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #9CA3AF;
+        }
+
+        .search-results {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        /* Back Button */
+        .back-btn {
+            background: white;
+            color: #6366F1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 480px;
+            width: 100%;
+            background: white;
+            border-top: 1px solid #E5E7EB;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.3s;
+            background: transparent;
+            border: none;
+        }
+
+        .nav-item:hover {
+            background: #F3F4F6;
+        }
+
+        .nav-item.active {
+            background: #EEF2FF;
+        }
+
+        .nav-item-icon {
+            font-size: 24px;
+        }
+
+        .nav-item.active .nav-item-icon {
+            color: #6366F1;
+        }
+
+        .nav-item-text {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6B7280;
+        }
+
+        .nav-item.active .nav-item-text {
+            color: #6366F1;
+        }
+
+        .content-with-nav {
+            padding-bottom: 80px;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #EEF2FF;
+            color: #6366F1;
+        }
+
+        .badge.success {
+            background: #D1FAE5;
+            color: #059669;
+        }
+
+        /* Group Members Display */
+        .members-list {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .member-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .group-info-badge {
+            background: #EEF2FF;
+            color: #6366F1;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        /* Activity Tabs */
+        .activity-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .activity-tab {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: #6B7280;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .activity-tab.active {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            color: white;
+            border-color: #6366F1;
+        }
+
+        .activity-item {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .activity-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .activity-item-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+
+        .activity-item-time {
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+
+        .activity-item-description {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 8px;
+        }
+
+        .activity-item-amount {
+            font-size: 16px;
+            font-weight: 700;
+            color: #6366F1;
+        }
+
+        /* Emoji Picker */
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .emoji-option {
+            font-size: 32px;
+            padding: 12px;
+            background: white;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            height: 60px;
+        }
+
+        .emoji-option:hover {
+            background: #F3F4F6;
+            transform: scale(1.1);
+        }
+
+        .emoji-option.selected {
+            border-color: #6366F1;
+            background: #EEF2FF;
+        }
+
+        /* Profile Settings */
+        .profile-settings {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .profile-settings h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 16px;
+        }
+
+        .profile-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .profile-info-row:last-child {
+            border-bottom: none;
+        }
+
+        .profile-info-label {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .profile-info-value {
+            font-size: 14px;
+            color: #1F2937;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- App Header -->
+        <div class="app-header">
+            <div class="header-left">
+                <div class="profile-avatar" id="profileAvatar" onclick="toggleProfileDropdown()">U</div>
+                <div class="header-title">
+                    <h1>💰 Fairshare</h1>
+                    <p id="profileName">Welcome back!</p>
+                </div>
+            </div>
+            <button class="notification-btn" onclick="showNotifications()">🔔</button>
+        </div>
+
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-dropdown-header">
+                <div class="profile-dropdown-avatar" id="dropdownAvatar">U</div>
+                <div class="profile-dropdown-info">
+                    <h3 id="dropdownName">User Name</h3>
+                    <p id="dropdownUserId">user@email.com</p>
+                </div>
+            </div>
+            <div class="profile-dropdown-item" onclick="showScreen('profileScreen'); toggleProfileDropdown();">
+                👤 View Profile
+            </div>
+            <div class="profile-dropdown-item" onclick="logout(); toggleProfileDropdown();">
+                🚪 Sign Out
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Login Screen -->
+            <div id="loginScreen" class="screen active">
+                <div class="auth-container">
+                    <div class="auth-logo">
+                        <div class="auth-logo-icon">💰</div>
+                        <h2>Welcome Back</h2>
+                        <p>Split expenses fairly with friends</p>
+                    </div>
+                    <div class="error" id="loginError"></div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password">
+                    </div>
+                    <button class="btn" onclick="login()">Sign In</button>
+                    <a class="link" onclick="showScreen('signupScreen')">Don't have an account? Sign up</a>
+                </div>
+            </div>
+
+            <!-- Signup Screen -->
+            <div id="signupScreen" class="screen">
+                <div class="auth-container">
+                    <div class="auth-logo">
+                        <div class="auth-logo-icon">✨</div>
+                        <h2>Create Account</h2>
+                        <p>Start splitting expenses today</p>
+                    </div>
+                    <div class="error" id="signupError"></div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="signupName" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Choose Your Avatar</label>
+                        <div class="emoji-grid">
+                            <div class="emoji-option selected" onclick="selectSignupEmoji('👦')">👦</div>
+                            <div class="emoji-option" onclick="selectSignupEmoji('👧')">👧</div>
+                            <div class="emoji-option" onclick="selectSignupEmoji('👨')">👨</div>
+                            <div class="emoji-option" onclick="selectSignupEmoji('👩')">👩</div>
+                            <div class="emoji-option" onclick="selectSignupEmoji('🧑')">🧑</div>
+                            <div class="emoji-option" onclick="selectSignupEmoji('👴')">👴</div>
+                        </div>
+                        <input type="hidden" id="signupEmoji" value="👦">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="signupEmail" placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="signupPassword" placeholder="Create a password">
+                    </div>
+                    <button class="btn" onclick="signup()">Create Account</button>
+                    <a class="link" onclick="showScreen('loginScreen')">Already have an account? Sign in</a>
+                </div>
+            </div>
+
+            <!-- Dashboard Screen -->
+            <div id="dashboardScreen" class="screen">
+                <div class="content-with-nav">
+                    <div class="dashboard-stats">
+                        <div class="stat-card positive">
+                            <h3>You're Owed</h3>
+                            <p id="owedAmount">₹0</p>
+                        </div>
+                        <div class="stat-card negative">
+                            <h3>You Owe</h3>
+                            <p id="oweAmount">₹0</p>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="showScreen('createGroupScreen')">
+                            <div class="action-btn-icon">➕</div>
+                            <div class="action-btn-text">Create Group</div>
+                        </button>
+                        <button class="action-btn" onclick="showScreen('joinGroupScreen')">
+                            <div class="action-btn-icon">🔗</div>
+                            <div class="action-btn-text">Join Group</div>
+                        </button>
+                    </div>
+
+                    <div class="section-header">
+                        <h2>Your Groups</h2>
+                        <button onclick="loadGroups()">Refresh</button>
+                    </div>
+                    <div id="groupsList" class="loading">Loading groups...</div>
+                </div>
+
+                <!-- Bottom Navigation -->
+                <div class="bottom-nav">
+                    <button class="nav-item active" onclick="showScreen('dashboardScreen')">
+                        <div class="nav-item-icon">🏠</div>
+                        <div class="nav-item-text">Home</div>
+                    </button>
+                    <button class="nav-item" onclick="showScreen('yourGroupsScreen'); loadYourOwnedGroups();">
+                        <div class="nav-item-icon">👥</div>
+                        <div class="nav-item-text">Your Owned</div>
+                    </button>
+                    <button class="nav-item" onclick="showScreen('browseGroupsScreen'); loadAllGroups();">
+                        <div class="nav-item-icon">🔍</div>
+                        <div class="nav-item-text">Browse</div>
+                    </button>
+                    <button class="nav-item" onclick="showScreen('activityScreen'); loadActivities();">
+                        <div class="nav-item-icon">📊</div>
+                        <div class="nav-item-text">Activity</div>
+                    </button>
+                    <button class="nav-item" onclick="showScreen('profileScreen')">
+                        <div class="nav-item-icon">👤</div>
+                        <div class="nav-item-text">Profile</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Your Owned Groups Screen -->
+            <div id="yourGroupsScreen" class="screen">
+                <div class="content-with-nav">
+                    <button class="btn back-btn" onclick="showScreen('dashboardScreen')">← Back to Home</button>
+                    <h2 style="margin-bottom: 20px; color: #1F2937; font-size: 24px;">Groups You Own</h2>
+                    <div id="ownedGroupsList" class="loading">Loading your groups...</div>
+                </div>
+            </div>
+
+            <!-- Browse Groups Screen -->
+            <div id="browseGroupsScreen" class="screen">
+                <div class="content-with-nav">
+                    <button class="btn back-btn" onclick="showScreen('dashboardScreen')">← Back to Home</button>
+                    <h2 style="margin-bottom: 20px; color: #1F2937; font-size: 24px;">Browse Groups</h2>
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="searchGroupInput" placeholder="Search groups..." oninput="searchGroups()">
+                    </div>
+                    <div id="browseGroupsList" class="search-results loading">Loading groups...</div>
+                </div>
+            </div>
+
+            <!-- Create Group Screen -->
+            <div id="createGroupScreen" class="screen">
+                <button class="btn back-btn" onclick="showScreen('dashboardScreen')">← Back</button>
+                <h2 style="margin-bottom: 20px; color: #1F2937; font-size: 24px;">Create New Group</h2>
+                <div class="error" id="groupError"></div>
+                <div class="success" id="groupSuccess"></div>
+                <div class="form-group">
+                    <label>Group Name</label>
+                    <input type="text" id="groupName" placeholder="Weekend Trip, Office Lunch...">
+                </div>
+                <div class="form-group">
+                    <label>Invite Members (Optional)</label>
+                    <textarea id="groupMembers" rows="3" placeholder="friend1@email.com, friend2@email.com"></textarea>
+                    <p style="font-size: 12px; color: #6B7280; margin-top: 6px;">Comma-separated email addresses</p>
+                </div>
+                <button class="btn" onclick="createGroup()">Create Group</button>
+            </div>
+
+            <!-- Join Group Screen -->
+            <div id="joinGroupScreen" class="screen">
+                <button class="btn back-btn" onclick="showScreen('dashboardScreen')">← Back</button>
+                <h2 style="margin-bottom: 20px; color: #1F2937; font-size: 24px;">Join a Group</h2>
+                <div class="error" id="joinGroupError"></div>
+                <div class="success" id="joinGroupSuccess"></div>
+                <div class="form-group">
+                    <label>Search Group Name</label>
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="joinGroupSearchInput" placeholder="Search for groups..." oninput="searchJoinGroups()">
+                    </div>
+                </div>
+                <div id="joinGroupResults" class="search-results"></div>
+                <p style="text-align: center; color: #6B7280; margin-top: 20px; font-size: 14px;">Or browse all available groups</p>
+                <button class="btn btn-outline" style="margin-top: 16px;" onclick="showScreen('browseGroupsScreen'); loadAllGroups();">Browse All Groups</button>
+            </div>
+
+            <!-- Group Detail Screen -->
+            <div id="groupDetailScreen" class="screen">
+                <div class="content-with-nav">
+                    <button class="btn back-btn" onclick="showScreen('dashboardScreen')">← Back</button>
+                    <h2 id="groupTitle" style="margin-bottom: 8px; color: #1F2937; font-size: 24px;"></h2>
+                    <div class="members-list" id="groupMembersDisplay"></div>
+                    
+                    <button class="btn" style="margin: 24px 0;" onclick="showAddExpenseScreen()">+ Add Expense</button>
+                    
+                    <div class="section-header">
+                        <h2>Settlement</h2>
+                    </div>
+                    <div id="settlementSummary" style="margin-bottom: 32px;"></div>
+                    
+                    <div class="section-header">
+                        <h2>Expenses</h2>
+                    </div>
+                    <div id="expensesList" class="loading">Loading expenses...</div>
+                </div>
+            </div>
+
+            <!-- Add Expense Screen -->
+            <div id="addExpenseScreen" class="screen">
+                <button class="btn back-btn" onclick="showScreen('groupDetailScreen')">← Back to Group</button>
+                <h2 style="margin-bottom: 20px; color: #1F2937; font-size: 24px;">Add Expense</h2>
+                <div class="error" id="expenseError"></div>
+                <div class="success" id="expenseSuccess"></div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="expenseDescription" placeholder="Dinner, Movie tickets, Groceries...">
+                </div>
+                <div class="form-group">
+                    <label>Amount (₹)</label>
+                    <input type="number" id="expenseAmount" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Paid By</label>
+                    <select id="expensePayer"></select>
+                </div>
+                <div class="form-group">
+                    <label>Split Among</label>
+                    <div id="participantsList"></div>
+                </div>
+                <button class="btn" onclick="addExpense()">Add Expense</button>
+            </div>
+
+            <!-- Activity Screen -->
+            <div id="activityScreen" class="screen">
+                <div class="content-with-nav">
+                    <button class="btn back-btn" onclick="showScreen('dashboardScreen')">← Back to Home</button>
+                    <h2 style="margin-bottom: 20px; color: #1F2937; font-size: 24px;">Recent Activity</h2>
+                    
+                    <div class="activity-tabs">
+                        <button class="activity-tab active" onclick="filterActivities('today')">Today</button>
+                        <button class="activity-tab" onclick="filterActivities('week')">This Week</button>
+                        <button class="activity-tab" onclick="filterActivities('month')">This Month</button>
+                    </div>
+
+                    <div id="activityList" class="loading">Loading activities...</div>
+                </div>
+            </div>
+
+            <!-- Profile Screen -->
+            <div id="profileScreen" class="screen">
+                <div class="content-with-nav">
+                    <button class="btn back-btn" onclick="showScreen('dashboardScreen')">← Back to Home</button>
+                    <h2 style="margin-bottom: 20px; color: #1F2937; font-size: 24px;">Profile Settings</h2>
+                    
+                    <div class="profile-settings">
+                        <h3>Account Information</h3>
+                        <div class="profile-info-row">
+                            <span class="profile-info-label">User ID</span>
+                            <span class="profile-info-value" id="profileUserId">-</span>
+                        </div>
+                        <div class="profile-info-row">
+                            <span class="profile-info-label">Name</span>
+                            <span class="profile-info-value" id="profileUserName">-</span>
+                        </div>
+                        <div class="profile-info-row">
+                            <span class="profile-info-label">Email</span>
+                            <span class="profile-info-value" id="profileUserEmail">-</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-settings">
+                        <h3>Choose Your Avatar</h3>
+                        <div class="emoji-grid">
+                            <div class="emoji-option" onclick="selectProfileEmoji('👦')">👦</div>
+                            <div class="emoji-option" onclick="selectProfileEmoji('👧')">👧</div>
+                            <div class="emoji-option" onclick="selectProfileEmoji('👨')">👨</div>
+                            <div class="emoji-option" onclick="selectProfileEmoji('👩')">👩</div>
+                            <div class="emoji-option" onclick="selectProfileEmoji('🧑')">🧑</div>
+                            <div class="emoji-option" onclick="selectProfileEmoji('👴')">👴</div>
+                            <div class="emoji-option" onclick="selectProfileEmoji('👵')">👵</div>
+                            <div class="emoji-option" onclick="selectProfileEmoji('🧔')">🧔</div>
+                            <div class="emoji-option" onclick="selectProfileEmoji('👩‍🦰')">👩‍🦰</div>
+                            <div class="emoji-option" onclick="selectProfileEmoji('👨‍🦱')">👨‍🦱</div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-danger" style="margin-top: 20px;" onclick="logout()">Sign Out</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expense Detail Panel -->
+        <div class="expense-detail-panel" id="expenseDetailPanel">
+            <div class="expense-detail-header">
+                <h2 id="expenseDetailTitle">Expense Details</h2>
+                <button class="expense-detail-close" onclick="closeExpenseDetail()">✕</button>
+            </div>
+            <div class="expense-detail-content">
+                <div class="expense-detail-section">
+                    <h3>Description</h3>
+                    <p id="expenseDetailDescription">-</p>
+                </div>
+                <div class="expense-detail-section">
+                    <h3>Total Amount</h3>
+                    <p id="expenseDetailAmount" style="color: #6366F1; font-size: 24px; font-weight: 700;">₹0.00</p>
+                </div>
+                <div class="expense-detail-section">
+                    <h3>Paid By</h3>
+                    <p id="expenseDetailPayer">-</p>
+                </div>
+                <div class="expense-detail-section">
+                    <h3>Date</h3>
+                    <p id="expenseDetailDate">-</p>
+                </div>
+                <div class="expense-detail-section">
+                    <h3>Split Details</h3>
+                    <div id="expenseDetailSplit"></div>
+                </div>
+                <button class="btn btn-danger" onclick="deleteExpense()">🗑️ Delete Expense</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // GLOBAL STATE MANAGEMENT
+        // ============================================================
+        
+        let currentUser = null;
+        let currentGroupId = null;
+        let currentExpenseId = null;
+        let allGroups = [];
+        let viewedGroups = new Set();
+        let currentActivityFilter = 'today';
+
+        // ============================================================
+        // LOCAL STORAGE HELPERS
+        // ============================================================
+        
+        function getViewedGroups() {
+            if (!currentUser) return new Set();
+            const stored = localStorage.getItem(`viewedGroups_${currentUser.email}`);
+            return stored ? new Set(JSON.parse(stored)) : new Set();
+        }
+
+        function saveViewedGroups() {
+            if (!currentUser) return;
+            localStorage.setItem(`viewedGroups_${currentUser.email}`, JSON.stringify([...viewedGroups]));
+        }
+
+        function markGroupAsViewed(groupId) {
+            viewedGroups.add(groupId);
+            saveViewedGroups();
+        }
+
+        function removeFromViewed(groupId) {
+            viewedGroups.delete(groupId);
+            saveViewedGroups();
+            loadGroups();
+        }
+
+        function clearAllViewedGroups() {
+            if (!confirm('Remove all recently viewed groups from this list?')) return;
+            viewedGroups.clear();
+            saveViewedGroups();
+            loadGroups();
+        }
+
+        // ============================================================
+        // SCREEN MANAGEMENT
+        // ============================================================
+        
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            document.getElementById(screenId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.error, .success').forEach(msg => {
+                msg.style.display = 'none';
+            });
+
+            // Hide profile dropdown when changing screens
+            document.getElementById('profileDropdown').classList.remove('show');
+        }
+
+        // ============================================================
+        // PROFILE DROPDOWN
+        // ============================================================
+        
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            const avatar = document.getElementById('profileAvatar');
+            
+            if (!dropdown.contains(event.target) && event.target !== avatar) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        function updateProfileDropdown() {
+            if (!currentUser) return;
+            
+            document.getElementById('dropdownAvatar').textContent = currentUser.emoji || currentUser.name.charAt(0).toUpperCase();
+            document.getElementById('dropdownName').textContent = currentUser.name;
+            document.getElementById('dropdownUserId').textContent = currentUser.email;
+        }
+
+        // ============================================================
+        // AUTHENTICATION
+        // ============================================================
+        
+        function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showError('loginError', 'Please enter both email and password');
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                viewedGroups = getViewedGroups();
+                updateUserProfile();
+                updateProfileDropdown();
+                showScreen('dashboardScreen');
+                loadGroups();
+            } else {
+                showError('loginError', 'Invalid email or password');
+            }
+        }
+
+        function selectSignupEmoji(emoji) {
+            document.querySelectorAll('#signupScreen .emoji-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            document.getElementById('signupEmoji').value = emoji;
+        }
+
+        function signup() {
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const emoji = document.getElementById('signupEmoji').value;
+            
+            if (!name || !email || !password) {
+                showError('signupError', 'Please fill in all fields');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                showError('signupError', 'Please enter a valid email address');
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            if (users.find(u => u.email === email)) {
+                showError('signupError', 'Email already registered');
+                return;
+            }
+            
+            const newUser = { 
+                name, 
+                email, 
+                password, 
+                emoji,
+                createdAt: new Date().toISOString() 
+            };
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            currentUser = newUser;
+            viewedGroups = new Set();
+            updateUserProfile();
+            updateProfileDropdown();
+            showScreen('dashboardScreen');
+            loadGroups();
+        }
+
+        function logout() {
+            currentUser = null;
+            viewedGroups = new Set();
+            showScreen('loginScreen');
+        }
+
+        function updateUserProfile() {
+            if (currentUser) {
+                document.getElementById('profileName').textContent = currentUser.name;
+                document.getElementById('profileAvatar').textContent = currentUser.emoji || currentUser.name.charAt(0).toUpperCase();
+                
+                // Update profile screen
+                document.getElementById('profileUserId').textContent = currentUser.email;
+                document.getElementById('profileUserName').textContent = currentUser.name;
+                document.getElementById('profileUserEmail').textContent = currentUser.email;
+                
+                // Highlight selected emoji
+                document.querySelectorAll('#profileScreen .emoji-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                    if (opt.textContent === currentUser.emoji) {
+                        opt.classList.add('selected');
+                    }
+                });
+            }
+        }
+
+        function selectProfileEmoji(emoji) {
+            if (!currentUser) return;
+            
+            document.querySelectorAll('#profileScreen .emoji-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            // Update user emoji
+            currentUser.emoji = emoji;
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const userIndex = users.findIndex(u => u.email === currentUser.email);
+            if (userIndex !== -1) {
+                users[userIndex].emoji = emoji;
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
+            updateUserProfile();
+            updateProfileDropdown();
+        }
+
+        // ============================================================
+        // GROUP MANAGEMENT
+        // ============================================================
+        
+        function createGroup() {
+            const groupName = document.getElementById('groupName').value.trim();
+            const membersInput = document.getElementById('groupMembers').value.trim();
+            
+            if (!groupName) {
+                showError('groupError', 'Please enter a group name');
+                return;
+            }
+            
+            const groups = JSON.parse(localStorage.getItem('groups') || '[]');
+            const memberEmails = membersInput 
+                ? membersInput.split(',').map(e => e.trim()).filter(e => e)
+                : [];
+            
+            const newGroup = {
+                id: Date.now().toString(),
+                name: groupName,
+                creator: currentUser.email,
+                members: [currentUser.email, ...memberEmails],
+                expenses: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            groups.push(newGroup);
+            localStorage.setItem('groups', JSON.stringify(groups));
+            
+            // Add activity
+            addActivity('group_created', `Created group "${groupName}"`, newGroup.id);
+            
+            document.getElementById('groupName').value = '';
+            document.getElementById('groupMembers').value = '';
+            
+            showSuccess('groupSuccess', 'Group created successfully!');
+            setTimeout(() => {
+                showScreen('dashboardScreen');
+                loadGroups();
+            }, 1500);
+        }
+
+        function joinGroupByName(groupName) {
+            const groups = JSON.parse(localStorage.getItem('groups') || '[]');
+            const group = groups.find(g => g.name === groupName);
+            
+            if (!group) {
+                showError('joinGroupError', 'Group not found');
+                return;
+            }
+            
+            if (group.members.includes(currentUser.email)) {
+                showError('joinGroupError', 'You are already a member of this group');
+                return;
+            }
+            
+            group.members.push(currentUser.email);
+            localStorage.setItem('groups', JSON.stringify(groups));
+            
+            // Add activity
+            addActivity('group_joined', `Joined group "${groupName}"`, group.id);
+            
+            showSuccess('joinGroupSuccess', `Joined "${groupName}" successfully!`);
+            setTimeout(() => {
+                showScreen('dashboardScreen');
+                loadGroups();
+            }, 1500);
+        }
+
+        function loadGroups() {
+            const groupsList = document.getElementById('groupsList');
+            const groups = JSON.parse(localStorage.getItem('groups') || '[]');
+            
+            const userGroups = groups.filter(g => g.members.includes(currentUser.email));
+            
+            if (userGroups.length === 0) {
+                groupsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📂</div>
+                        <h3>No groups yet</h3>
+                        <p>Create or join a group to start splitting expenses</p>
+                    </div>
+                `;
+                updateDashboardStats([]);
+                return;
+            }
+            
+            const viewedGroupsList = [];
+            const notViewedGroupsList = [];
+            
+            userGroups.forEach(group => {
+                const balance = calculateUserBalance(group, currentUser.email);
+                const groupWithBalance = { ...group, balance };
+                
+                if (viewedGroups.has(group.id)) {
+                    viewedGroupsList.push(groupWithBalance);
+                } else {
+                    notViewedGroupsList.push(groupWithBalance);
+                }
+            });
+            
+            let html = '';
+            
+            if (notViewedGroupsList.length > 0) {
+                notViewedGroupsList.forEach(group => {
+                    html += createGroupCard(group, false);
+                });
+            }
+            
+            if (viewedGroupsList.length > 0) {
+                html += `<div class="section-header" style="margin-top: 24px;">
+                    <h2>Recently Viewed</h2>
+                </div>`;
+                
+                html += `<button class="delete-all-btn" onclick="clearAllViewedGroups()">
+                    🗑️ Clear All Recently Viewed
+                </button>`;
+                
+                viewedGroupsList.forEach(group => {
+                    html += createGroupCard(group, true);
+                });
+            }
+            
+            groupsList.innerHTML = html;
+            updateDashboardStats(userGroups);
+        }
+
+        function loadYourOwnedGroups() {
+            const ownedList = document.getElementById('ownedGroupsList');
+            const groups = JSON.parse(localStorage.getItem('groups') || '[]');
+            
+            const ownedGroups = groups.filter(g => g.creator === currentUser.email);
+            
+            if (ownedGroups.length === 0) {
+                ownedList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <h3>No groups owned</h3>
+                        <p>Create a group to see it here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            ownedGroups.forEach(group => {
+                const balance = calculateUserBalance(group, currentUser.email);
+                html += createGroupCard({ ...group, balance }, false);
+            });
+            
+            ownedList.innerHTML = html;
+        }
+
+        function createGroupCard(group, showDelete = false) {
+            const balance = group.balance || 0;
+            const balanceClass = balance > 0 ? 'positive' : balance < 0 ? 'negative' : '';
+            const balanceText = balance > 0 
+                ? `You're owed ₹${Math.abs(balance).toFixed(2)}` 
+                : balance < 0 
+                ? `You owe ₹${Math.abs(balance).toFixed(2)}`
+                : 'Settled up';
+            
+            const memberCount = group.members.length;
+            const expenseCount = group.expenses ? group.expenses.length : 0;
+            
+            return `
+                <div class="group-card">
+                    <div class="group-card-icon">💰</div>
+                    <div class="group-card-content" onclick="viewGroup('${group.id}')">
+                        <h3>${group.name}</h3>
+                        <p>${memberCount} member${memberCount !== 1 ? 's' : ''} · ${expenseCount} expense${expenseCount !== 1 ? 's' : ''}</p>
+                        <span class="group-card-balance ${balanceClass}">${balanceText}</span>
+                    </div>
+                    <div class="group-card-actions">
+                        ${showDelete ? `
+                            <button class="delete-view-btn" onclick="event.stopPropagation(); removeFromViewed('${group.id}')" title="Remove from viewed">
+                                🗑️
+                            </button>
+                        ` : ''}
+                        <span class="group-card-arrow" onclick="viewGroup('${group.id}')">→</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calculateUserBalance(group, userEmail) {
+            if (!group.expenses || group.expenses.length === 0) return 0;
+            
+            let balance = 0;
+            
+            group.expenses.forEach(expense => {
+                const amount = parseFloat(expense.amount);
+                const participants = expense.participants || [];
+                
+                if (participants.length === 0) return;
+                
+                const sharePerPerson = amount / participants.length;
+                
+                // If user paid, they are owed by others
+                if (expense.paidBy === userEmail) {
+                    // User gets back the full amount
+                    balance += amount;
+                    // But they also participated, so subtract their own share
+                    if (participants.includes(userEmail)) {
+                        balance -= sharePerPerson;
+                    }
+                } else if (participants.includes(userEmail)) {
+                    // User participated but didn't pay: they owe their share
+                    balance -= sharePerPerson;
+                }
+            });
+            
+            return balance;
+        }
+
+        function updateDashboardStats(userGroups) {
+            let totalOwed = 0;
+            let totalOwe = 0;
+            
+            userGroups.forEach(group => {
+                const balance = calculateUserBalance(group, currentUser.email);
+                if (balance > 0) {
+                    totalOwed += balance;
+                } else if (balance < 0) {
+                    totalOwe += Math.abs(balance);
+                }
+            });
+            
+            document.getElementById('owedAmount').textContent = `₹${totalOwed.toFixed(2)}`;
+            document.getElementById('oweAmount').textContent = `₹${totalOwe.toFixed(2)}`;
+        }
+
+        function viewGroup(groupId) {
+            currentGroupId = groupId;
+            markGroupAsViewed(groupId);
+            
+            const groups = JSON.parse(localStorage.getItem('groups') || '[]');
+            const group = groups.find(g => g.id === groupId);
+            
+            if (!group) return;
+            
+            document.getElementById('groupTitle').textContent = group.name;
+            displayGroupMembers(group);
+            loadGroupExpenses(group);
+            displaySettlement(group);
+            
+            showScreen('groupDetailScreen');
+        }
+
+        function displayGroupMembers(group) {
+            const membersDisplay = document.getElementById('groupMembersDisplay');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            let html = '';
+            
+            group.members.forEach(email => {
+                const user = users.find(u => u.email === email);
+                const display = user?.emoji || email.charAt(0).toUpperCase();
+                html += `<div class="member-avatar" title="${email}">${display}</div>`;
+            });
+            
+            membersDisplay.innerHTML = html;
+        }
+
+        // ============================================================
+        // EXPENSE MANAGEMENT
+        // ============================================================
+        
+        function showAddExpenseScreen() {
+            const groups = JSON.parse(localStorage.getItem('groups') || '[]');
+            const group = groups.find(g => g.id === currentGroupId);
+            
+            if (!group) return;
+            
+            const payerSelect = document.getElementById('expensePayer');
+            payerSelect.innerHTML = group.members.map(email => 
+                `<option value="${email}">${email}${email === currentUser.email ? ' (You)' : ''}</option>`
+            ).join('');
+            
+            const participantsList = document.getElementById('participantsList');
+            participantsList.innerHTML = group.members.map(email => `
+                <div class="member-checkbox">
+                    <input type="checkbox" id="participant_${email}" value="${email}" checked>
+                    <label for="participant_${email}">${email}${email === currentUser.email ? ' (You)' : ''}</label>
+                </div>
+            `).join('');
+            
+            showScreen('addExpenseScreen');
+        }
+
+        function addExpense() {
+            const description = document.getElementById('expenseDescription').value.trim();
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const paidBy = document.getElementById('expensePayer').value;
+            
+            const participants = [];
+            document.querySelectorAll('#participantsList input[type="checkbox"]:checked').forEach(checkbox => {
+                participants.push(checkbox.value);
+            });
+            
+            if (!description) {
+                showError('expenseError', 'Please enter a description');
+                return;
+            }
+            
+            if (!amount || amount <= 0) {
+                showError('expenseError', 'Please enter a valid amount');
+                return;
+            }
+            
+            if (participants.length === 0) {
+                showError('expenseError', 'Please select at least one participant');
+                return;
+            }
+            
+            const groups = JSON.parse(localStorage.getItem('groups') || '[]');
+            const groupIndex = groups.findIndex(g => g.id === currentGroupId);
+            
+            if (groupIndex === -1) return;
+            
+            const newExpense = {
+                id: Date.now().toString(),
+                description,
+                amount,
+                paidBy,
+                participants,
+                createdAt: new Date().toISOString()
+            };
+            
+            if (!groups[groupIndex].expenses) {
+                groups[groupIndex].expenses = [];
+            }
+            groups[groupIndex].expenses.push(newExpense);
+            
+            localStorage.setItem('groups', JSON.stringify(groups));
+            
+            // Add activity
+            addActivity('expense_added', `Added expense "${description}" (₹${amount})`, currentGroupId);
+            
+            document.getElementById('expenseDescription').value = '';
+            document.getElementById('expenseAmount').value = '';
+            
+            showSuccess('expenseSuccess', 'Expense added successfully!');
+            
+            setTimeout(() => {
+                viewGroup(currentGroupId);
+            }, 1500);
+        }
+
+        function loadGroupExpenses(group) {
+            const expensesList = document.getElementById('expensesList');
+            
+            if (!group.expenses || group.expenses.length === 0) {
+                expensesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💸</div>
+                        <h3>No expenses yet</h3>
+                        <p>Add your first expense to start tracking</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const sortedExpenses = [...group.expenses].sort((a, b) => 
+                new Date(b.createdAt) - new Date(a.createdAt)
+            );
+            
+            let html = '';
+            sortedExpenses.forEach(expense => {
+                const date = new Date(expense.createdAt).toLocaleDateString();
+                const sharePerPerson = (parseFloat(expense.amount) / expense.participants.length).toFixed(2);
+                
+                html += `
+                    <div class="expense-card" onclick="showExpenseDetail('${expense.id}')">
+                        <div class="expense-header">
+                            <h3>${expense.description}</h3>
+                            <span class="expense-amount">₹${parseFloat(expense.amount).toFixed(2)}</span>
+                        </div>
+                        <div class="expense-details">
+                            <div class="expense-detail">
+                                <span class="expense-detail-icon">👤</span>
+                                Paid by ${expense.paidBy}${expense.paidBy === currentUser.email ? ' (You)' : ''}
+                            </div>
+                            <div class="expense-detail">
+                                <span class="expense-detail-icon">👥</span>
+                                Split among ${expense.participants.length} member${expense.participants.length !== 1 ? 's' : ''} (₹${sharePerPerson} each)
+                            </div>
+                            <div class="expense-detail">
+                                <span class="expense-detail-icon">📅</span>
+                                ${date}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            expensesList.innerHTML = html;
+        }
+
+        function showExpenseDetail(expenseId) {
+            currentExpenseId = expenseId;
+            
+            const groups = JSON.parse(localStorage.getItem('groups') || '[]');
+            const group = groups.find(g => g.id === currentGroupId);
+            
+            if (!group) return;
+            
+            const expense = group.expenses.find(e => e.id === expenseId);
+            if (!expense) return;
+            
+            document.getElementById('expenseDetailTitle').textContent = 'Expense Details';
+            document.getElementById('expenseDetailDescription').textContent = expense.description;
+            document.getElementById('expenseDetailAmount').textContent = `₹${parseFloat(expense.amount).toFixed(2)}`;
+            document.getElementById('expenseDetailPayer').textContent = expense.paidBy + (expense.paidBy === currentUser.email ? ' (You)' : '');
+            document.getElementById('expenseDetailDate').textContent = new Date(expense.createdAt).toLocaleString();
+            
+            const sharePerPerson = (parseFloat(expense.amount) / expense.participants.length).toFixed(2);
+            let splitHtml = '';
+            expense.participants.forEach(participant => {
+                splitHtml += `
+                    <div class="expense-split-item">
+                        <span>${participant}${participant === currentUser.email ? ' (You)' : ''}</span>
+                        <span style="font-weight: 600;">₹${sharePerPerson}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('expenseDetailSplit').innerHTML = splitHtml;
+            
+            document.getElementById('expenseDetailPanel').classList.add('show');
+        }
+
+        function closeExpenseDetail() {
+            document.getElementById('expenseDetailPanel').classList.remove('show');
+            currentExpenseId = null;
+        }
+
+        function deleteExpense() {
+            if (!confirm('Delete this expense? This action cannot be undone.')) return;
+            
+            const groups = JSON.parse(localStorage.getItem('groups') || '[]');
+            const groupIndex = groups.findIndex(g => g.id === currentGroupId);
+            
+            if (groupIndex === -1) return;
+            
+            const expenseIndex = groups[groupIndex].expenses.findIndex(e => e.id === currentExpenseId);
+            if (expenseIndex === -1) return;
+            
+            const deletedExpense = groups[groupIndex].expenses[expenseIndex];
+            groups[groupIndex].expenses.splice(expenseIndex, 1);
+            
+            localStorage.setItem('groups', JSON.stringify(groups));
+            
+            // Add activity
+            addActivity('expense_deleted', `Deleted expense "${deletedExpense.description}"`, currentGroupId);
+            
+            closeExpenseDetail();
+            viewGroup(currentGroupId);
+        }
+
+        function displaySettlement(group) {
+            const settlementDiv = document.getElementById('settlementSummary');
+            
+            if (!group.expenses || group.expenses.length === 0) {
+                settlementDiv.innerHTML = '<p style="color: #6B7280;">No expenses to settle</p>';
+                return;
+            }
+            
+            // Calculate net balances for each member
+            const balances = {};
+            group.members.forEach(member => {
+                balances[member] = 0;
+            });
+            
+            group.expenses.forEach(expense => {
+                const amount = parseFloat(expense.amount);
+                const participants = expense.participants || [];
+                
+                if (participants.length === 0) return;
+                
+                const sharePerPerson = amount / participants.length;
+                
+                // Person who paid is owed by others
+                balances[expense.paidBy] = (balances[expense.paidBy] || 0) + amount;
+                
+                // Everyone who participated owes their share
+                participants.forEach(participant => {
+                    balances[participant] = (balances[participant] || 0) - sharePerPerson;
+                });
+            });
+            
+            // Separate into creditors (owed money) and debtors (owe money)
+            const creditors = [];
+            const debtors = [];
+            
+            Object.entries(balances).forEach(([email, balance]) => {
+                if (balance > 0.01) {
+                    creditors.push({ email, amount: balance });
+                } else if (balance < -0.01) {
+                    debtors.push({ email, amount: Math.abs(balance) });
+                }
+            });
+            
+            // Sort for consistent settlement
+            creditors.sort((a, b) => b.amount - a.amount);
+            debtors.sort((a, b) => b.amount - a.amount);
+            
+            let html = '';
+            
+            if (creditors.length === 0 && debtors.length === 0) {
+                html = '<p style="color: #10B981; font-weight: 600;">✓ All settled up!</p>';
+            } else {
+                // Generate settlements
+                let i = 0, j = 0;
+                while (i < debtors.length && j < creditors.length) {
+                    const debtor = debtors[i];
+                    const creditor = creditors[j];
+                    
+                    const settlementAmount = Math.min(debtor.amount, creditor.amount);
+                    
+                    if (settlementAmount > 0.01) {
+                        const fromUser = debtor.email === currentUser.email ? 'You' : debtor.email;
+                        const toUser = creditor.email === currentUser.email ? 'you' : creditor.email;
+                        
+                        html += `
+                            <div class="settlement-item">
+                                <strong>${fromUser}</strong> owes <strong>${toUser}</strong> 
+                                <span class="settlement-amount">₹${settlementAmount.toFixed(2)}</span>
+                            </div>
+                        `;
+                    }
+                    
+                    debtor.amount -= settlementAmount;
+                    creditor.amount -= settlementAmount;
+                    
+                    if (debtor.amount < 0.01) i++;
+                    if (creditor.amount < 0.01) j++;
+                }
+            }
+            
+            settlementDiv.innerHTML = html;
+        }
+
+        // ============================================================
+        // ACTIVITY TRACKING
+        // ============================================================
+        
+        function addActivity(type, description, groupId) {
+            if (!currentUser) return;
+            
+            const activities = JSON.parse(localStorage.getItem('activities') || '[]');
+            
+            const newActivity = {
+                id: Date.now().toString(),
+                userId: currentUser.email,
+                type,
+                description,
+                groupId,
+                timestamp: new Date().toISOString()
+            };
+            
+            activities.push(newActivity);
+            localStorage.setItem('activities', JSON.stringify(activities));
+        }
+
+        function loadActivities() {
+            filterActivities(currentActivityFilter);
+        }
+
+        function filterActivities(filter) {
+            currentActivityFilter = filter;
+            
+            // Update tabs
+            document.querySelectorAll('.activity-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event?.target?.classList?.add('active');
+            
+            const activityList = document.getElementById('activityList');
+            const activities = JSON.parse(localStorage.getItem('activities') || '[]');
+            
+            // Filter activities for current user
+            const userActivities = activities.filter(a => a.userId === currentUser.email);
+            
+            if (userActivities.length === 0) {
+                activityList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <h3>No activities yet</h3>
+                        <p>Your activities will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const monthStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            
+            let filteredActivities = userActivities.filter(activity => {
+                const activityDate = new Date(activity.timestamp);
+                
+                if (filter === 'today') {
+                    return activityDate >= todayStart;
+                } else if (filter === 'week') {
+                    return activityDate >= weekStart && activityDate < todayStart;
+                } else if (filter === 'month') {
+                    return activityDate >= monthStart && activityDate < weekStart;
+                }
+                
+                return true;
+            });
+            
+            // Sort by timestamp (newest first)
+            filteredActivities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            if (filteredActivities.length === 0) {
+                activityList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <h3>No activities in this period</h3>
+                        <p>Try selecting a different time range</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            filteredActivities.forEach(activity => {
+                const timestamp = new Date(activity.timestamp);
+                const timeAgo = getTimeAgo(timestamp);
+                
+                const iconMap = {
+                    'group_created': '➕',
+                    'group_joined': '🔗',
+                    'expense_added': '💸',
+                    'expense_deleted': '🗑️'
+                };
+                
+                const icon = iconMap[activity.type] || '📌';
+                
+                html += `
+                    <div class="activity-item" onclick="${activity.groupId ? `viewGroup('${activity.groupId}')` : ''}">
+                        <div class="activity-item-header">
+                            <div class="activity-item-title">${icon} ${activity.description}</div>
+                            <div class="activity-item-time">${timeAgo}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            activityList.innerHTML = html;
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+            
+            return date.toLocaleDateString();
+        }
+
+        // ============================================================
+        // BROWSE & SEARCH GROUPS
+        // ============================================================
+        
+        function loadAllGroups() {
+            const browseList = document.getElementById('browseGroupsList');
+            allGroups = JSON.parse(localStorage.getItem('groups') || '[]');
+            
+            if (allGroups.length === 0) {
+                browseList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3>No groups available</h3>
+                        <p>Be the first to create a group!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            displayBrowseGroups(allGroups);
+        }
+
+        function displayBrowseGroups(groups) {
+            const browseList = document.getElementById('browseGroupsList');
+            const availableGroups = groups.filter(g => !g.members.includes(currentUser.email));
+            
+            if (availableGroups.length === 0) {
+                browseList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✓</div>
+                        <h3>You've joined all available groups!</h3>
+                        <p>Create a new group to continue</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            availableGroups.forEach(group => {
+                const memberCount = group.members.length;
+                const expenseCount = group.expenses ? group.expenses.length : 0;
+                
+                html += `
+                    <div class="group-card">
+                        <div class="group-card-icon">💰</div>
+                        <div class="group-card-content" style="cursor: default;">
+                            <h3>${group.name}</h3>
+                            <p>${memberCount} member${memberCount !== 1 ? 's' : ''} · ${expenseCount} expense${expenseCount !== 1 ? 's' : ''}</p>
+                            <span class="group-info-badge">Created by ${group.creator}</span>
+                        </div>
+                        <button class="btn btn-small" onclick="joinGroupByName('${group.name}')">Join</button>
+                    </div>
+                `;
+            });
+            
+            browseList.innerHTML = html;
+        }
+
+        function searchGroups() {
+            const searchTerm = document.getElementById('searchGroupInput').value.trim().toLowerCase();
+            
+            if (!searchTerm) {
+                displayBrowseGroups(allGroups);
+                return;
+            }
+            
+            const availableGroups = allGroups.filter(g => !g.members.includes(currentUser.email));
+            const exactMatches = [];
+            const partialMatches = [];
+            
+            availableGroups.forEach(group => {
+                const groupName = group.name.toLowerCase();
+                
+                if (groupName === searchTerm) {
+                    exactMatches.push(group);
+                } else if (groupName.includes(searchTerm)) {
+                    partialMatches.push(group);
+                }
+            });
+            
+            const filteredGroups = [...exactMatches, ...partialMatches];
+            
+            if (filteredGroups.length === 0) {
+                document.getElementById('browseGroupsList').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3>No groups found</h3>
+                        <p>Try a different search term</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            displayBrowseGroups(filteredGroups);
+        }
+
+        function searchJoinGroups() {
+            const searchTerm = document.getElementById('joinGroupSearchInput').value.trim().toLowerCase();
+            const resultsDiv = document.getElementById('joinGroupResults');
+            
+            if (!searchTerm) {
+                resultsDiv.innerHTML = '<p style="color: #6B7280; text-align: center; padding: 20px;">Start typing to search groups...</p>';
+                return;
+            }
+            
+            const groups = JSON.parse(localStorage.getItem('groups') || '[]');
+            const availableGroups = groups.filter(g => !g.members.includes(currentUser.email));
+            
+            const exactMatches = [];
+            const partialMatches = [];
+            
+            availableGroups.forEach(group => {
+                const groupName = group.name.toLowerCase();
+                
+                if (groupName === searchTerm) {
+                    exactMatches.push(group);
+                } else if (groupName.includes(searchTerm)) {
+                    partialMatches.push(group);
+                }
+            });
+            
+            const filteredGroups = [...exactMatches, ...partialMatches];
+            
+            if (filteredGroups.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3>No groups found</h3>
+                        <p>No matching groups available to join</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            filteredGroups.forEach(group => {
+                const memberCount = group.members.length;
+                const expenseCount = group.expenses ? group.expenses.length : 0;
+                
+                html += `
+                    <div class="group-card">
+                        <div class="group-card-icon">💰</div>
+                        <div class="group-card-content" style="cursor: default;">
+                            <h3>${group.name}</h3>
+                            <p>${memberCount} member${memberCount !== 1 ? 's' : ''} · ${expenseCount} expense${expenseCount !== 1 ? 's' : ''}</p>
+                            <span class="group-info-badge">Created by ${group.creator}</span>
+                        </div>
+                        <button class="btn btn-small" onclick="joinGroupByName('${group.name}')">Join</button>
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        // ============================================================
+        // UTILITY FUNCTIONS
+        // ============================================================
+        
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(elementId, message) {
+            const successElement = document.getElementById(elementId);
+            successElement.textContent = message;
+            successElement.style.display = 'block';
+            
+            setTimeout(() => {
+                successElement.style.display = 'none';
+            }, 3000);
+        }
+
+        function showNotifications() {
+            alert('Notifications feature coming soon!');
+        }
+
+        // ============================================================
+        // INITIALIZE APP
+        // ============================================================
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                viewedGroups = getViewedGroups();
+                updateUserProfile();
+                updateProfileDropdown();
+                showScreen('dashboardScreen');
+                loadGroups();
+            }
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (currentUser) {
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+        });
+    </script>
+</body>
+</html>
